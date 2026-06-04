@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%= csrf_meta_tags %>
+<title>Daily Scrum · Video</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e16; --surface:#10151f; --surface2:#0d121b; --line:rgba(120,200,180,.14);
+    --line2:rgba(255,255,255,.07); --txt:#dbe3ee; --muted:#7f8da3; --faint:#586377;
+    --accent:#2fd6b8; --accent-dim:rgba(47,214,184,.14); --rec:#f5424b; --radius:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;line-height:1.6;
+    background-image:radial-gradient(circle at 20% 0%,rgba(47,214,184,.05),transparent 45%),radial-gradient(circle at 90% 100%,rgba(59,130,246,.05),transparent 45%);
+    min-height:100vh;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+  .wrap{max-width:760px;margin:0 auto;padding:22px 18px 60px}
+  header{display:flex;align-items:baseline;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  header h1{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;letter-spacing:.04em}
+  header .sub{color:var(--accent);font-size:12px;font-family:'IBM Plex Mono',monospace}
+  .card{background:var(--surface);border:1px solid var(--line2);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+  .lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+  label.field{display:block;margin-bottom:12px}
+  label.field span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);display:block;margin-bottom:5px}
+  input,select{font-family:'IBM Plex Sans',sans-serif;font-size:14px;background:var(--surface2);border:1px solid var(--line2);
+    color:var(--txt);border-radius:7px;padding:9px 11px;width:100%}
+  input:focus,select:focus{outline:none;border-color:var(--accent)}
+  button{font-family:'IBM Plex Mono',monospace;font-size:13px;cursor:pointer;border-radius:7px;
+    border:1px solid var(--line);background:transparent;color:var(--muted);padding:10px 16px;transition:.15s}
+  button:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+  button:active{transform:scale(.98)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--accent);color:#0a0e16;border-color:var(--accent);font-weight:600;width:100%}
+  button.primary:hover{background:#3ee6c7}
+  button.rec{background:var(--rec);color:#fff;border-color:var(--rec)}
+  button.rec:hover{background:#ff5a62;color:#fff;border-color:var(--rec)}
+  .or{display:flex;align-items:center;gap:12px;color:var(--faint);font-family:'IBM Plex Mono',monospace;font-size:11px;margin:14px 0}
+  .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line2)}
+  .ghost{width:100%}
+  .ghost small{display:block;font-size:10px;color:var(--faint);margin-top:2px}
+  .stage{position:relative;background:#000;border-radius:var(--radius);overflow:hidden;aspect-ratio:16/9;border:1px solid var(--line2)}
+  video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+  video.mirror{transform:scaleX(-1)}
+  .overlay{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:14px}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start}
+  .recdot{display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.55);border-radius:20px;padding:6px 12px;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;opacity:0;transition:.2s}
+  .recdot.on{opacity:1}
+  .recdot i{width:9px;height:9px;border-radius:50%;background:var(--rec);display:inline-block;animation:blink 1s infinite}
+  .recdot.warn span{color:#f5a623} .recdot.over span{color:#ff5a62}
+  @keyframes blink{50%{opacity:.25}}
+  .prompt{background:rgba(10,14,22,.72);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .prompt .step{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.06em;margin-bottom:3px}
+  .prompt .q{font-size:20px;font-weight:600;line-height:1.25}
+  .prompt .q .kr{font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;display:block;margin-top:3px}
+  .dots{display:flex;gap:6px;margin-top:10px}
+  .dots i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+  .dots i.on{background:var(--accent)}
+  .audiostage{background:var(--surface2);border:1px solid var(--line2);border-radius:var(--radius);padding:22px;text-align:center}
+  .audiostage .mic{font-size:34px}
+  .audiostage .prompt{background:transparent;border:none;padding:14px 0 0;backdrop-filter:none}
+  .audiostage .recdot{justify-content:center;margin:0 auto 8px;width:max-content}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+  .controls .spacer{flex:1}
+  .qnav{display:flex;gap:8px}
+  .hint{font-size:12px;color:var(--faint);margin-top:10px;line-height:1.5}
+  .hint code{font-family:'IBM Plex Mono',monospace;color:var(--accent);font-size:11px}
+  .kbd{font-size:11px;color:var(--faint);margin-top:8px}
+  .kbd code{font-family:'IBM Plex Mono',monospace;color:var(--muted);border:1px solid var(--line2);border-radius:4px;padding:1px 5px}
+  .banner{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.4);color:#ffd591;
+    border-radius:var(--radius);padding:12px 15px;margin-bottom:16px;font-size:13px;line-height:1.5}
+  .banner code{font-family:'IBM Plex Mono',monospace;color:#ffd591}
+  .err{background:rgba(245,66,75,.12);border:1px solid rgba(245,66,75,.4);color:#ff9ba0;border-radius:8px;padding:11px 14px;font-size:13px;margin-top:12px;display:none}
+  .err.show{display:block}
+  .meta{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-top:10px}
+  .hidden{display:none!important}
+  .devbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  @media(max-width:560px){.devbar{grid-template-columns:1fr}}
+  .devbar label span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px}
+  .meterwrap{margin-top:12px}
+  .meterwrap .ml{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+  .meter{height:10px;background:var(--surface2);border:1px solid var(--line2);border-radius:6px;overflow:hidden}
+  .meter i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#2fd6b8,#7ee06a 70%,#f5a623 90%,#f5424b);transition:width .06s linear}
+  .micwarn{font-size:12px;color:#ffd591;margin-top:6px;display:none}
+  .micwarn.show{display:block}
+  #countdown{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,14,22,.6);z-index:60}
+  #countdown span{font-family:'IBM Plex Mono',monospace;font-size:120px;font-weight:600;color:var(--accent)}
+  .marks{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .markchip{font-family:'IBM Plex Mono',monospace;font-size:11px;border:1px solid var(--line2);border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--muted)}
+  .markchip:hover{border-color:var(--accent);color:var(--accent)}
+  .markchip b{color:var(--accent)}
+  #clipsList{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+  .clip{display:flex;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);border:1px solid var(--line2);border-radius:7px;padding:8px 11px;cursor:pointer}
+  .clip:hover{border-color:var(--accent)}
+  .clip.active{border-color:var(--accent);color:var(--accent)}
+  .clip .play{margin-left:auto;color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="countdown" class="hidden"><span>3</span></div>
+  <header><h1>DAILY SCRUM</h1><span class="sub">async · enviar al equipo</span></header>
+
+  <div class="banner" id="ctxBanner">
+    ⚠️ Cámara, micrófono y pantalla necesitan <b>contexto seguro</b>. En el PC: sírvelo desde <code>http://localhost</code>
+    o por HTTPS. En el <b>celular</b> solo por HTTPS (cuando esté en el VPS).
+  </div>
+
+  <!-- SETUP -->
+  <div class="card" id="setup">
+    <div class="lbl">Antes de grabar</div>
+    <label class="field"><span>Tu nombre</span><input id="devName" placeholder="ej: Ana" autocomplete="off"></label>
+    <div class="hint">Respondes en un solo clip: <b>ayer</b>, <b>hoy</b> y <b>bloqueos</b>. Si no hay cámara, graba solo audio automáticamente. Después puedes añadir una grabación de pantalla si necesitas mostrar algo.</div>
+    <div class="controls"><button class="primary" id="enableBtn">🎥 Grabar mi daily</button></div>
+    <div class="err" id="setupErr"></div>
+  </div>
+
+  <!-- RECORDER -->
+  <div class="card hidden" id="recorder">
+    <div class="stage" id="videoStage">
+      <video id="preview" autoplay muted playsinline></video>
+      <div class="overlay">
+        <div class="topbar"><div class="recdot" id="recDotV"><i></i><span class="timer">00:00</span></div><div></div></div>
+        <div class="prompt">
+          <div class="step qStep">PREGUNTA 1 / 3</div>
+          <div class="q qText"></div>
+          <div class="dots qDots"></div>
+        </div>
+      </div>
+    </div>
+    <div class="audiostage hidden" id="audioStage">
+      <div class="recdot" id="recDotA"><i></i><span class="timer">00:00</span></div>
+      <div class="mic">🎙</div>
+      <div class="prompt">
+        <div class="step qStep">PREGUNTA 1 / 3</div>
+        <div class="q qText"></div>
+        <div class="dots qDots" style="justify-content:center"></div>
+      </div>
+    </div>
+
+    <div class="devbar">
+      <label id="micWrap"><span>🎙 Micrófono</span><select id="micSel"></select></label>
+      <label id="camWrap"><span>🎥 Cámara</span><select id="camSel"></select></label>
+    </div>
+    <div class="meterwrap">
+      <div class="ml"><span>Nivel de micrófono</span><span id="micLabel">— habla para probar</span></div>
+      <div class="meter"><i id="meterBar"></i></div>
+      <div class="micwarn" id="micWarn">No detecto señal en este micrófono. Prueba otra entrada.</div>
+    </div>
+
+    <div class="controls">
+      <div class="qnav"><button id="prevQ">‹ anterior</button><button id="nextQ">siguiente ›</button></div>
+      <span id="goalLabel" class="mono" style="font-size:11px;color:var(--muted);align-self:center"></span>
+      <div class="spacer"></div>
+      <button id="backBtn">← volver</button>
+      <button class="rec" id="recBtn">● Grabar</button>
+    </div>
+    <div class="hint" id="recHint"></div>
+    <div class="kbd"><code>espacio</code> grabar/detener · <code>←</code> <code>→</code> cambiar pregunta</div>
+  </div>
+
+  <!-- REVIEW -->
+  <div class="card hidden" id="review">
+    <div class="lbl">Revisar y guardar</div>
+    <div class="stage"><video id="playback" controls playsinline></video></div>
+    <div class="meta" id="clipMeta"></div>
+    <div class="marks" id="marksPanel"></div>
+    <div id="clipsList"></div>
+    <div class="controls">
+      <button id="redoBtn">↺ Regrabar</button>
+      <button id="reviewScreenBtn">🖥 grabar pantalla para mostrar algo</button>
+      <div class="spacer"></div>
+      <button class="primary" id="finishBtn" style="width:auto">✓ Finalizar daily</button>
+    </div>
+  </div>
+
+  <!-- DONE -->
+  <div class="card hidden" id="done" style="text-align:center">
+    <div style="font-size:46px;color:var(--accent);line-height:1">✓</div>
+    <div class="lbl" style="justify-content:center;margin-top:8px">Daily completado</div>
+    <div id="doneSummary" class="meta" style="margin-top:6px"></div>
+    <div class="hint" style="margin-top:14px">✓ Tu daily se envió al servidor. ¡Gracias!</div>
+    <div class="controls" style="justify-content:center"><button class="primary" id="newDailyBtn" style="width:auto">Nuevo daily</button></div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS=[
+  {q:"¿Qué hiciste ayer?", kr:"어제 한 일"},
+  {q:"¿Qué harás hoy?",    kr:"오늘 할 일"},
+  {q:"¿Algún bloqueo?",    kr:"막힌 부분"}
+];
+const $=id=>document.getElementById(id);
+let kind="cam", hasVideo=true;
+let stream=null, micSourceStream=null, screenSourceStream=null, screenVt=null;
+let recorder=null, chunks=[], startTs=0, timerInt=null, qIdx=0, blob=null, mime="", durationSec=0;
+let audioCtx=null, analyser=null, meterRAF=null, meterStream=null, meterSrc=null, micSeen=false;
+let marks=[], goalSec=120, prefMic="";
+let clips=[];
+
+const canScreen=!!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+
+
+/* ---------- preguntas ---------- */
+function renderQ(){
+  const it=QUESTIONS[qIdx];
+  document.querySelectorAll(".qStep").forEach(e=>e.textContent=`PREGUNTA ${qIdx+1} / ${QUESTIONS.length}`);
+  document.querySelectorAll(".qText").forEach(e=>e.innerHTML=`${it.q}<span class="kr">${it.kr}</span>`);
+  document.querySelectorAll(".qDots").forEach(c=>{c.innerHTML="";QUESTIONS.forEach((_,i)=>{const d=document.createElement("i");if(i===qIdx)d.className="on";c.appendChild(d);});});
+  $("prevQ").disabled=qIdx===0; $("nextQ").disabled=qIdx===QUESTIONS.length-1;
+}
+function gotoQ(delta){ if(kind==="screen") return; const n=qIdx+delta; if(n<0||n>QUESTIONS.length-1) return; qIdx=n; renderQ(); if(recorder && recorder.state==="recording") addMark(qIdx); }
+$("prevQ").onclick=()=>gotoQ(-1);
+$("nextQ").onclick=()=>gotoQ(1);
+
+/* ---------- utilidades ---------- */
+function today(){ return new Date().toISOString().slice(0,10); }
+function fmt(sec){ sec=Math.max(0,Math.round(sec)); return `${String(Math.floor(sec/60)).padStart(2,"0")}:${String(sec%60).padStart(2,"0")}`; }
+function addMark(idx){ marks.push({q:idx, label:QUESTIONS[idx].q, t:Math.round((Date.now()-startTs)/1000)}); }
+function renderMarks(){ const pnl=$("marksPanel"); pnl.innerHTML="";
+  marks.forEach(m=>{ const c=document.createElement("span"); c.className="markchip"; c.innerHTML=`<b>${fmt(m.t)}</b> · ${m.label}`;
+    c.onclick=()=>{ const pb=$("playback"); pb.currentTime=m.t; pb.play().catch(()=>{}); }; pnl.appendChild(c); }); }
+function updateGoalLabel(){ $("goalLabel").textContent="meta "+fmt(120); }
+
+function pickMime(k){
+  const v=["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm","video/mp4"];
+  const a=["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus"];
+  for(const t of (k==="audio"?a:v)){ if(window.MediaRecorder && MediaRecorder.isTypeSupported(t)) return t; }
+  return "";
+}
+
+function stopAllSources(){
+  if(screenVt){ screenVt.onended=null; screenVt=null; }
+  [stream, micSourceStream, screenSourceStream].forEach(s=>{ if(s) s.getTracks().forEach(t=>t.stop()); });
+  stream=micSourceStream=screenSourceStream=null;
+}
+
+/* ---------- adquisición ---------- */
+function micConstraint(){
+  const mic=$("micSel").value||prefMic;
+  const c={ echoCancellation:true, noiseSuppression:true, autoGainControl:true, channelCount:1 };
+  if(mic) c.deviceId={exact:mic};
+  return c;
+}
+
+function setStream(tracks){
+  stream=new MediaStream(tracks);
+  if(hasVideo){
+    $("preview").srcObject=stream;
+    $("preview").classList.toggle("mirror", kind==="cam");
+  }
+  $("micWarn").classList.toggle("show", stream.getAudioTracks().length===0);
+}
+
+async function acquireCam(){
+  stopAllSources();
+  const cam=$("camSel").value;
+  try{
+    micSourceStream=await navigator.mediaDevices.getUserMedia({
+      audio:micConstraint(),
+      video: cam?{deviceId:{exact:cam},width:1280,height:720}:{width:1280,height:720}
+    });
+    hasVideo=micSourceStream.getVideoTracks().length>0;
+  }catch(e){
+    // sin cámara disponible -> caer a solo audio
+    micSourceStream=await navigator.mediaDevices.getUserMedia({audio:micConstraint()});
+    hasVideo=false;
+  }
+  const t=[]; if(hasVideo)t.push(micSourceStream.getVideoTracks()[0]); t.push(micSourceStream.getAudioTracks()[0]);
+  setStream(t);
+}
+
+async function acquireScreen(){
+  stopAllSources();
+  const opts={ video:true, audio:false, selfBrowserSurface:"exclude", surfaceSwitching:"include" };
+  let controller=null;
+  if(window.CaptureController){ controller=new CaptureController(); opts.controller=controller; }
+  screenSourceStream=await navigator.mediaDevices.getDisplayMedia(opts);
+  if(controller){ try{ controller.setFocusBehavior("no-focus-change"); }catch(e){} }  // mantener el foco en el grabador
+  screenVt=screenSourceStream.getVideoTracks()[0];
+  // Si detienen el compartir desde el navegador: si estaba grabando, cerramos el clip (-> revisión).
+  // Si no, no hacemos nada (no reseteamos la app).
+  screenVt.onended=()=>{ if(recorder && recorder.state==="recording") stopRec(); };
+  micSourceStream=await navigator.mediaDevices.getUserMedia({audio:micConstraint()});
+  hasVideo=true;
+  setStream([screenVt, micSourceStream.getAudioTracks()[0]]);
+}
+
+/* ---------- UI por contexto ---------- */
+function applyUI(){
+  const isScreen = kind==="screen";
+  $("videoStage").classList.toggle("hidden", !hasVideo);
+  $("audioStage").classList.toggle("hidden", hasVideo);
+  $("camWrap").classList.toggle("hidden", !(kind==="cam" && hasVideo));
+  document.querySelector("#videoStage .prompt").style.display = isScreen ? "none" : "";
+  document.querySelector(".qnav").style.display = isScreen ? "none" : "";
+  $("goalLabel").style.display = isScreen ? "none" : "";
+  $("recHint").textContent = kind==="screen"
+    ? "Compartiendo pantalla + micrófono. Para evitar el efecto espejo, comparte una ventana concreta (tu editor), no toda la pantalla."
+    : (hasVideo ? "Verifica que la barra se mueva al hablar antes de grabar."
+                : "Sin cámara detectada: grabando solo audio. Verifica el nivel del micrófono.");
+}
+
+async function listDevices(){
+  const devs=await navigator.mediaDevices.enumerateDevices();
+  fill($("micSel"), devs.filter(d=>d.kind==="audioinput"), "Micrófono");
+  fill($("camSel"), devs.filter(d=>d.kind==="videoinput"), "Cámara");
+}
+function fill(sel,list,label){const cur=sel.value;sel.innerHTML="";
+  list.forEach((d,i)=>{const o=document.createElement("option");o.value=d.deviceId;o.textContent=d.label||`${label} ${i+1}`;sel.appendChild(o);});
+  if(cur) sel.value=cur;}
+
+$("micSel").onchange=async()=>{ try{
+  if(kind==="screen"){
+    const ns=await navigator.mediaDevices.getUserMedia({audio:{deviceId:{exact:$("micSel").value}}});
+    if(micSourceStream) micSourceStream.getTracks().forEach(t=>t.stop());
+    stream.getAudioTracks().forEach(t=>stream.removeTrack(t));
+    stream.addTrack(ns.getAudioTracks()[0]); micSourceStream=ns;
+  } else { await acquireCam(); applyUI(); }
+  startMeter(); savePrefs();
+}catch(e){ showErr("setupErr","No pude abrir ese micrófono: "+e.name);} };
+$("camSel").onchange=async()=>{ try{ await acquireCam(); applyUI(); startMeter(); }catch(e){ showErr("setupErr","No pude abrir esa cámara: "+e.name);} };
+
+/* ---------- medidor ---------- */
+function startMeter(){
+  stopMeter();
+  const at=stream && stream.getAudioTracks()[0];
+  if(!at) return;
+  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==="suspended") audioCtx.resume();
+  meterStream=new MediaStream([at.clone()]);
+  meterSrc=audioCtx.createMediaStreamSource(meterStream);
+  analyser=audioCtx.createAnalyser(); analyser.fftSize=512; meterSrc.connect(analyser);
+  const data=new Uint8Array(analyser.fftSize); micSeen=false;
+  const loop=()=>{
+    analyser.getByteTimeDomainData(data);
+    let sum=0; for(let i=0;i<data.length;i++){const v=(data[i]-128)/128; sum+=v*v;}
+    const level=Math.min(100,Math.round(Math.sqrt(sum/data.length)*180));
+    $("meterBar").style.width=level+"%";
+    if(level>6){micSeen=true; $("micLabel").textContent="✓ captando audio"; $("micWarn").classList.remove("show");}
+    else if(!micSeen){$("micLabel").textContent="— habla para probar";}
+    meterRAF=requestAnimationFrame(loop);
+  };
+  loop();
+}
+function stopMeter(){ if(meterRAF)cancelAnimationFrame(meterRAF); meterRAF=null;
+  if(meterStream){meterStream.getTracks().forEach(t=>t.stop());meterStream=null;} meterSrc=null; }
+
+/* ---------- entrar / salir del grabador ---------- */
+async function enterRecorder(autoStart){
+  mime=pickMime(hasVideo?"video":"audio");
+  await listDevices();
+  if(prefMic && [...$("micSel").options].some(o=>o.value===prefMic) && $("micSel").value!==prefMic){ $("micSel").value=prefMic; await $("micSel").onchange(); }
+  startMeter(); applyUI(); updateGoalLabel(); savePrefs();
+  $("setup").classList.add("hidden"); $("review").classList.add("hidden"); $("recorder").classList.remove("hidden"); $("ctxBanner").classList.add("hidden");
+  qIdx=0; renderQ();
+  if(autoStart) beginRecording();   // pantalla: empieza a grabar al elegir la ventana
+}
+function goBack(){ stopMeter(); stopAllSources();
+  $("recorder").classList.add("hidden"); $("review").classList.add("hidden");
+  $("setup").classList.remove("hidden"); $("ctxBanner").classList.remove("hidden"); }
+$("backBtn").onclick=goBack;
+
+$("enableBtn").onclick=async()=>{
+  $("setupErr").classList.remove("show");
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
+    return showErr("setupErr","Este navegador no soporta captura, o no estás en contexto seguro (https/localhost).");
+  kind="cam";
+  try{ await acquireCam(); }
+  catch(e){ return showErr("setupErr","No se pudo acceder al micrófono: "+e.name+". Revisa permisos y contexto seguro."); }
+  enterRecorder();
+};
+
+async function startScreenFlow(){
+  $("setupErr").classList.remove("show");
+  if(!canScreen) return showErr("setupErr","Este navegador no soporta compartir pantalla.");
+  kind="screen";
+  try{ await acquireScreen(); }
+  catch(e){ return showErr("setupErr","No se pudo iniciar la captura de pantalla o el micrófono: "+e.name); }
+  enterRecorder(true);
+}
+$("reviewScreenBtn").onclick=startScreenFlow;
+if(!canScreen) $("reviewScreenBtn").classList.add("hidden");
+
+/* ---------- grabación ---------- */
+function setRecDots(on){ ["recDotV","recDotA"].forEach(id=>$(id).classList.toggle("on",on)); }
+function setTimers(txt){ document.querySelectorAll(".timer").forEach(e=>e.textContent=txt); }
+
+function runCountdown(done){
+  const el=$("countdown"), n=el.querySelector("span"); let k=3;
+  el.classList.remove("hidden"); n.textContent=k;
+  const iv=setInterval(()=>{ k--; if(k<=0){ clearInterval(iv); el.classList.add("hidden"); done(); } else { n.textContent=k; } }, 800);
+}
+function beginRecording(){ qIdx=0; renderQ(); runCountdown(startRec); }  // siempre arranca en la pregunta 1
+function toggleRec(){ if(recorder && recorder.state==="recording") stopRec(); else beginRecording(); }
+$("recBtn").onclick=toggleRec;
+
+function startRec(){
+  chunks=[];
+  const at=stream.getAudioTracks()[0];
+  console.log("Audio track al grabar:", at?at.label:"NINGUNO", at&&{enabled:at.enabled,muted:at.muted,state:at.readyState});
+  const recStream=new MediaStream([...stream.getVideoTracks(), ...stream.getAudioTracks()]);
+  const recOpts = mime ? {mimeType:mime} : {};
+  recOpts.audioBitsPerSecond = 128000;
+  if(hasVideo) recOpts.videoBitsPerSecond = 3000000;
+  try{ recorder=new MediaRecorder(recStream, recOpts); }
+  catch(e){ try{ recorder=new MediaRecorder(recStream, mime?{mimeType:mime}:undefined); }catch(e2){ recorder=new MediaRecorder(recStream); } }
+  recorder.ondataavailable=e=>{ if(e.data && e.data.size>0) chunks.push(e.data); };
+  recorder.onstop=finishRec;
+  try{ recorder.start(1000); }
+  catch(err){ console.error("No se pudo iniciar la grabación:", err); $("recHint").textContent="No se pudo iniciar la grabación: "+err.name; return; }
+  startTs=Date.now(); goalSec=120; marks=[]; if(kind!=="screen") addMark(qIdx);
+  setRecDots(true); $("recBtn").textContent="■ Detener";
+  $("micSel").disabled=$("camSel").disabled=$("backBtn").disabled=true;
+  timerInt=setInterval(updTimer,250);
+}
+function stopRec(){ stopMeter(); clearInterval(timerInt); if(recorder && recorder.state!=="inactive") recorder.stop(); }
+function updTimer(){const s=Math.floor((Date.now()-startTs)/1000);
+  setTimers(fmt(s));
+  const over=goalSec>0 && s>goalSec, way=goalSec>0 && s>goalSec*1.5;
+  document.querySelectorAll(".recdot").forEach(d=>{ d.classList.toggle("warn",over&&!way); d.classList.toggle("over",way); });}
+
+function finishRec(){
+  durationSec=Math.round((Date.now()-startTs)/1000);
+  blob=new Blob(chunks,{type:mime||"video/webm"});
+  stopAllSources();
+  const url=URL.createObjectURL(blob);
+  const label = kind==="screen" ? "pantalla" : (hasVideo?"video":"audio");
+  const ext = mime.includes("mp4")?(hasVideo?"mp4":"m4a"):(mime.includes("ogg")?"ogg":"webm");
+  const mm=Math.floor(durationSec/60), ss=durationSec%60, mb=(blob.size/1048576).toFixed(1);
+  const meta=`${$("devName").value||"dev"} · ${today()} · ${label} · ${mm}m ${ss}s · ${mb} MB · ${(mime||"webm").split(";")[0]}`;
+  clips.push({url, name:clipName(ext), label, duration:durationSec, size:blob.size, marks:[...marks], meta, blob});
+  $("recorder").classList.add("hidden"); $("review").classList.remove("hidden");
+  renderClips();
+  selectClip(clips.length-1);
+}
+
+function selectClip(i){
+  const c=clips[i]; if(!c) return;
+  const pb=$("playback"); pb.src=c.url;
+  pb.addEventListener("loadedmetadata",()=>{ if(pb.duration===Infinity){ pb.currentTime=1e101;
+    pb.addEventListener("timeupdate",function once(){ pb.currentTime=0; pb.removeEventListener("timeupdate",once); }); } },{once:true});
+  $("clipMeta").textContent=c.meta;
+  marks=c.marks||[]; renderMarks();
+  [...document.querySelectorAll("#clipsList .clip")].forEach((row,idx)=>row.classList.toggle("active", idx===i));
+}
+
+function renderClips(){
+  const el=$("clipsList"); el.innerHTML="";
+  if(clips.length<=1) return;             // con un solo clip no saturamos la UI
+  const head=document.createElement("div"); head.className="lbl"; head.style.margin="4px 0";
+  head.textContent=`Clips de este daily (${clips.length})`; el.appendChild(head);
+  clips.forEach((c,i)=>{ const row=document.createElement("div"); row.className="clip";
+    row.innerHTML=`<span>${c.label} · ${fmt(c.duration)} · ${(c.size/1048576).toFixed(1)} MB</span><span class="play">▶ ver</span>`;
+    row.onclick=()=>selectClip(i);
+    el.appendChild(row); });
+}
+
+/* ---------- review ---------- */
+function clipName(ext){ const safe=($("devName").value||"dev").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-");
+  const label = kind==="screen" ? "pantalla" : (hasVideo?"video":"audio");
+  return `daily-${safe}-${today()}-${label}.${ext}`; }
+
+$("redoBtn").onclick=async()=>{
+  blob=null; $("review").classList.add("hidden");
+  if(clips.length){ const c=clips.pop(); URL.revokeObjectURL(c.url); }
+  try{
+    if(kind==="screen") await acquireScreen(); else await acquireCam();
+    applyUI(); startMeter();
+    setRecDots(false); setTimers("00:00"); $("recBtn").textContent="● Grabar";
+    $("micSel").disabled=$("camSel").disabled=$("backBtn").disabled=false;
+    qIdx=0; renderQ(); $("recorder").classList.remove("hidden");
+  }catch(e){ goBack(); showErr("setupErr","No se pudo reactivar: "+e.name); }
+};
+
+/* ---------- finalizar (provisional) ---------- */
+function csrfToken(){ return document.querySelector('meta[name="csrf-token"]')?.content || ""; }
+async function finalizeDaily(){
+  if(!clips.length) return;
+  $("finishBtn").disabled=true; $("finishBtn").textContent="Subiendo…";
+  try{
+    let i=0;
+    for(const c of clips){
+      i++; $("finishBtn").textContent=`Subiendo… (${i}/${clips.length})`;
+      const fd=new FormData();
+      fd.append("dev", $("devName").value||"dev");
+      fd.append("date", today());
+      fd.append("kind", c.label);
+      fd.append("duration", c.duration);
+      fd.append("marks", JSON.stringify(c.marks||[]));
+      fd.append("file", c.blob, c.name);
+      const res=await fetch("/clips", { method:"POST", headers:{ "X-CSRF-Token": csrfToken() }, body: fd });
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok || !data.ok) throw new Error(data.error || ("HTTP "+res.status));
+    }
+    const total=clips.reduce((a,c)=>a+c.duration,0);
+    const parts=clips.map(c=>c.label).join(" + ") || "—";
+    $("doneSummary").textContent=`${$("devName").value||"dev"} · ${today()} · ${clips.length} clip${clips.length!==1?"s":""} (${parts}) · ${fmt(total)}`;
+    $("review").classList.add("hidden"); $("done").classList.remove("hidden");
+  }catch(e){
+    $("finishBtn").disabled=false; $("finishBtn").textContent="✓ Finalizar daily";
+    $("recHint")&&($("recHint").textContent="No se pudo subir: "+e.message);
+    alert("No se pudo subir el daily: "+e.message);
+  }
+}
+function resetAll(){
+  clips.forEach(c=>{ try{ URL.revokeObjectURL(c.url); }catch(e){} });
+  clips=[]; marks=[]; blob=null;
+  $("clipsList").innerHTML=""; $("marksPanel").innerHTML="";
+  $("done").classList.add("hidden");
+  goBack();
+}
+$("finishBtn").onclick=finalizeDaily;
+$("newDailyBtn").onclick=resetAll;
+
+/* ---------- atajos / guard / prefs ---------- */
+function showErr(id,msg){const el=$(id);el.textContent=msg;el.classList.add("show");}
+
+document.addEventListener("keydown",e=>{
+  const tag=(e.target.tagName||"").toLowerCase();
+  if(tag==="input"||tag==="textarea"||tag==="select") return;
+  if($("recorder").classList.contains("hidden")) return;
+  if(e.code==="Space"){ e.preventDefault(); toggleRec(); }
+  else if(e.key==="ArrowLeft"){ gotoQ(-1); }
+  else if(e.key==="ArrowRight"){ gotoQ(1); }
+});
+window.addEventListener("beforeunload",e=>{ if(recorder && recorder.state==="recording"){ e.preventDefault(); e.returnValue=""; } });
+
+function refreshTimer(){ if(recorder && recorder.state==="recording") updTimer(); }
+document.addEventListener("visibilitychange",refreshTimer);
+window.addEventListener("focus",refreshTimer);
+
+function loadPrefs(){ try{ return JSON.parse(localStorage.getItem("dailyPrefs")||"{}"); }catch(e){ return {}; } }
+function savePrefs(){ try{ localStorage.setItem("dailyPrefs", JSON.stringify({
+  name:$("devName").value, mic:$("micSel").value })); }catch(e){} }
+$("devName").addEventListener("input",savePrefs);
+
+(function applyPrefs(){
+  const pf=loadPrefs(); prefMic=pf.mic||"";
+  if(pf.name) $("devName").value=pf.name;
+})();
+
+renderQ();
+</script>
+</body>
+</html>

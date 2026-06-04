@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Daily Scrum</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root{--bg:#0a0e16;--surface:#10151f;--line:rgba(255,255,255,.07);--txt:#dbe3ee;--muted:#7f8da3;--accent:#2fd6b8}
+      *{box-sizing:border-box;margin:0}
+      body{background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans',sans-serif;line-height:1.6}
+      .wrap{max-width:920px;margin:0 auto;padding:22px 18px 60px}
+      h1{font-family:'IBM Plex Mono',monospace;font-size:18px;letter-spacing:.04em}
+      a{color:var(--accent)}
+    </style>
+  </head>
+  <body><div class="wrap"><%= yield %></div></body>
+</html>
