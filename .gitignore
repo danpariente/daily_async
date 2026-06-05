@@ -44,3 +44,4 @@
 /.kamal/secrets*
 !/.kamal/secrets.example
 /.kamal/.ghcr_token
+/.kamal/.dashboard_password

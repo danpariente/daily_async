@@ -40,7 +40,11 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
+    - DASHBOARD_PASSWORD
   clear:
+    # HTTP Basic auth user for the /dailies dashboard (password is a secret).
+    DASHBOARD_USER: lead
+
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
     SOLID_QUEUE_IN_PUMA: true
