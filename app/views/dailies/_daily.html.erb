@@ -1,0 +1,24 @@
+<div style="background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px">
+  <div style="font-family:'IBM Plex Mono';font-weight:600;color:var(--accent);margin-bottom:10px"><%= daily.dev_name %></div>
+  <% daily.clips.each do |clip| %>
+    <div style="margin-bottom:14px">
+      <div style="font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);margin-bottom:6px">
+        <%= clip.kind %> · <%= "%d:%02d" % [clip.duration_seconds/60, clip.duration_seconds%60] %>
+      </div>
+      <% if clip.file.attached? %>
+        <video controls playsinline preload="metadata"
+               src="<%= rails_blob_path(clip.file, disposition: 'inline') %>"
+               style="width:100%;max-width:520px;border-radius:8px;background:#000"></video>
+      <% end %>
+      <% if clip.marks.present? %>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+          <% clip.marks.each do |m| %>
+            <span style="font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:3px 8px">
+              <%= "%d:%02d" % [m['t'].to_i/60, m['t'].to_i%60] %> · <%= m['label'] %>
+            </span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

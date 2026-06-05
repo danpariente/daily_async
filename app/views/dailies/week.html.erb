@@ -1,0 +1,26 @@
+<% dows = %w[domingo lunes martes miércoles jueves viernes sábado] %>
+<div style="display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px">
+  <h1>ASYNC DAILY · últimos 5 días</h1>
+  <span style="font-family:'IBM Plex Mono';color:var(--muted);font-size:13px"><%= @start_date.iso8601 %> → <%= @end_date.iso8601 %></span>
+  <span style="flex:1"></span>
+  <%= link_to "vista por día", dailies_path, style: "font-family:'IBM Plex Mono';font-size:12px" %>
+  <span style="color:var(--muted)">·</span>
+  <%= link_to "‹ 5 días antes", week_dailies_path(end: (@start_date - 1).iso8601), style: "font-family:'IBM Plex Mono';font-size:12px" %>
+  <%= link_to "5 días después ›", week_dailies_path(end: (@end_date + 5).iso8601), style: "font-family:'IBM Plex Mono';font-size:12px" %>
+</div>
+
+<% (@start_date..@end_date).to_a.reverse.each do |date| %>
+  <% dailies = @dailies_by_date[date] || [] %>
+  <div style="margin-bottom:26px">
+    <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px">
+      <div style="font-family:'IBM Plex Mono';font-size:13px;color:var(--txt);font-weight:600"><%= date.iso8601 %></div>
+      <div style="font-family:'IBM Plex Mono';font-size:12px;color:var(--muted)"><%= dows[date.wday] %></div>
+      <%= link_to "ver día ›", dailies_path(date: date.iso8601), style: "font-family:'IBM Plex Mono';font-size:11px;margin-left:auto" %>
+    </div>
+    <% if dailies.empty? %>
+      <p style="color:var(--muted);font-size:13px;padding-left:2px;opacity:.7">— nadie envió su daily</p>
+    <% else %>
+      <%= render dailies %>
+    <% end %>
+  </div>
+<% end %>
