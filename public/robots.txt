@@ -1,1 +1,4 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+# Async Daily is a private team tool — ask crawlers not to index anything.
+# See https://www.robotstxt.org/robotstxt.html for documentation.
+User-agent: *
+Disallow: /
