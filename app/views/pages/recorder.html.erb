@@ -22,7 +22,6 @@
   .wrap{max-width:760px;margin:0 auto;padding:22px 18px 60px}
   header{display:flex;align-items:baseline;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
   header h1{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;letter-spacing:.04em}
-  header .sub{color:var(--accent);font-size:12px;font-family:'IBM Plex Mono',monospace}
   .card{background:var(--surface);border:1px solid var(--line2);border-radius:var(--radius);padding:18px;margin-bottom:16px}
   .lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
   label.field{display:block;margin-bottom:12px}
@@ -72,9 +71,6 @@
   .hint code{font-family:'IBM Plex Mono',monospace;color:var(--accent);font-size:11px}
   .kbd{font-size:11px;color:var(--faint);margin-top:8px}
   .kbd code{font-family:'IBM Plex Mono',monospace;color:var(--muted);border:1px solid var(--line2);border-radius:4px;padding:1px 5px}
-  .banner{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.4);color:#ffd591;
-    border-radius:var(--radius);padding:12px 15px;margin-bottom:16px;font-size:13px;line-height:1.5}
-  .banner code{font-family:'IBM Plex Mono',monospace;color:#ffd591}
   .err{background:rgba(245,66,75,.12);border:1px solid rgba(245,66,75,.4);color:#ff9ba0;border-radius:8px;padding:11px 14px;font-size:13px;margin-top:12px;display:none}
   .err.show{display:block}
   .meta{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-top:10px}
@@ -104,12 +100,7 @@
 <body>
 <div class="wrap">
   <div id="countdown" class="hidden"><span>3</span></div>
-  <header><h1>ASYNC DAILY</h1><span class="sub">async · enviar al equipo</span></header>
-
-  <div class="banner" id="ctxBanner">
-    ⚠️ Cámara, micrófono y pantalla necesitan <b>contexto seguro</b>. En el PC: sírvelo desde <code>http://localhost</code>
-    o por HTTPS. En el <b>celular</b> solo por HTTPS (cuando esté en el VPS).
-  </div>
+  <header><h1>ASYNC DAILY</h1></header>
 
   <!-- SETUP -->
   <div class="card" id="setup">
@@ -357,13 +348,13 @@ async function enterRecorder(autoStart){
   await listDevices();
   if(prefMic && [...$("micSel").options].some(o=>o.value===prefMic) && $("micSel").value!==prefMic){ $("micSel").value=prefMic; await $("micSel").onchange(); }
   startMeter(); applyUI(); updateGoalLabel(); savePrefs();
-  $("setup").classList.add("hidden"); $("review").classList.add("hidden"); $("recorder").classList.remove("hidden"); $("ctxBanner").classList.add("hidden");
+  $("setup").classList.add("hidden"); $("review").classList.add("hidden"); $("recorder").classList.remove("hidden");
   qIdx=0; renderQ();
   if(autoStart) beginRecording();   // pantalla: empieza a grabar al elegir la ventana
 }
 function goBack(){ stopMeter(); stopAllSources();
   $("recorder").classList.add("hidden"); $("review").classList.add("hidden");
-  $("setup").classList.remove("hidden"); $("ctxBanner").classList.remove("hidden"); }
+  $("setup").classList.remove("hidden"); }
 $("backBtn").onclick=goBack;
 
 $("enableBtn").onclick=async()=>{
