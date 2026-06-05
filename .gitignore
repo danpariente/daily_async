@@ -43,3 +43,4 @@
 # Ignore Kamal files.
 /.kamal/secrets*
 !/.kamal/secrets.example
+/.kamal/.ghcr_token
