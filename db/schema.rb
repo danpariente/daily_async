@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_04_125310) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_08_041205) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -45,6 +45,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_125310) do
     t.integer "duration_seconds", default: 0
     t.string "kind"
     t.json "marks", default: []
+    t.datetime "transcribed_at"
+    t.text "transcript"
+    t.string "transcript_status", default: "pending", null: false
+    t.json "transcript_words", default: []
     t.datetime "updated_at", null: false
     t.index ["daily_id"], name: "index_clips_on_daily_id"
   end

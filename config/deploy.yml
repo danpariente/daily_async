@@ -41,6 +41,7 @@ env:
   secret:
     - RAILS_MASTER_KEY
     - DASHBOARD_PASSWORD
+    - ELEVENLABS_API_KEY
   clear:
     # HTTP Basic auth user for the /dailies dashboard (password is a secret).
     DASHBOARD_USER: lead

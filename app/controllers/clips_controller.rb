@@ -8,6 +8,7 @@ class ClipsController < ApplicationController
       marks: parse_marks(params[:marks])
     )
     clip.file.attach(params[:file])
+    TranscribeClipJob.perform_later(clip)
     render json: { ok: true, clip_id: clip.id, daily_id: daily.id }
   rescue => e
     render json: { ok: false, error: e.message }, status: :unprocessable_entity

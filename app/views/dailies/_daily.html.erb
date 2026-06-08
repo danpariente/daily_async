@@ -19,6 +19,17 @@
           <% end %>
         </div>
       <% end %>
+      <% case clip.transcript_status %>
+      <% when "done" %>
+        <details style="margin-top:8px" open>
+          <summary style="font-family:'IBM Plex Mono';font-size:11px;color:var(--accent);cursor:pointer">transcripción</summary>
+          <p style="font-size:14px;color:var(--txt);margin-top:6px;white-space:pre-wrap;line-height:1.55"><%= clip.transcript.presence || "(sin audio reconocible)" %></p>
+        </details>
+      <% when "failed" %>
+        <div style="font-family:'IBM Plex Mono';font-size:11px;color:#f5a623;margin-top:8px">⚠️ no se pudo transcribir</div>
+      <% else %>
+        <div style="font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);margin-top:8px">⏳ transcribiendo…</div>
+      <% end %>
     </div>
   <% end %>
 </div>
