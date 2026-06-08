@@ -3,7 +3,7 @@ class AnalyzeDailyJob < ApplicationJob
 
   discard_on ActiveJob::DeserializationError
 
-  retry_on Faraday::Error, OpenaiBlockerAnalyzer::ApiError,
+  retry_on Faraday::Error, OpenaiDailyAnalyzer::ApiError,
            wait: :polynomially_longer, attempts: 4 do |job, error|
     daily = job.arguments.first
     daily.update!(analysis_status: "failed") if daily.is_a?(Daily)
@@ -11,12 +11,13 @@ class AnalyzeDailyJob < ApplicationJob
   end
 
   def perform(daily)
-    analyzer = OpenaiBlockerAnalyzer.new
+    analyzer = OpenaiDailyAnalyzer.new
     return unless analyzer.configured? # sin API key (p.ej. en dev): queda pending
 
     daily.update!(analysis_status: "processing")
     result = analyzer.call(daily.combined_transcript)
     daily.update!(
+      segments: result["segments"],
       blocked: result["blocked"],
       blocker_note: result["note"],
       analysis_status: "done",

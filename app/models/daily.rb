@@ -20,4 +20,13 @@ class Daily < ApplicationRecord
          .pluck(:transcript)
          .join("\n\n")
   end
+
+  # Verbatim limpio por pregunta (poblado por AnalyzeDailyJob).
+  def segment(key)
+    (segments || {})[key.to_s].to_s
+  end
+
+  def segments?
+    %w[ayer hoy bloqueos].any? { |k| segment(k).present? }
+  end
 end
