@@ -27,5 +27,8 @@ class TranscribeClipJob < ApplicationJob
       transcript_status: "done",
       transcribed_at: Time.current
     )
+
+    # Con la transcripción lista, re-evalúa si el dev quedó bloqueado ese día.
+    AnalyzeDailyJob.perform_later(clip.daily)
   end
 end

@@ -6,17 +6,21 @@ class DailiesController < ApplicationController
     @date = parse_date(params[:date])
     @dailies = Daily.where(on_date: @date)
                     .includes(clips: { file_attachment: :blob })
-                    .order(:dev_name)
+                    .order(blocked: :desc, dev_name: :asc)
   end
 
   # Tablero de los últimos 5 días, agrupado por fecha (más reciente primero).
+  # ?blocked=1 filtra solo a los dailies con bloqueo.
   def week
-    @end_date   = parse_date(params[:end])
-    @start_date = @end_date - 4
-    @dailies_by_date = Daily.where(on_date: @start_date..@end_date)
-                            .includes(clips: { file_attachment: :blob })
-                            .order(dev_name: :asc)
-                            .group_by(&:on_date)
+    @end_date    = parse_date(params[:end])
+    @start_date  = @end_date - 4
+    @only_blocked = params[:blocked].present?
+
+    scope = Daily.where(on_date: @start_date..@end_date)
+                 .includes(clips: { file_attachment: :blob })
+                 .order(blocked: :desc, dev_name: :asc)
+    scope = scope.where(blocked: true) if @only_blocked
+    @dailies_by_date = scope.group_by(&:on_date)
   end
 
   private

@@ -3,14 +3,25 @@
   <h1>ASYNC DAILY · últimos 5 días</h1>
   <span style="font-family:'IBM Plex Mono';color:var(--muted);font-size:13px"><%= @start_date.iso8601 %> → <%= @end_date.iso8601 %></span>
   <span style="flex:1"></span>
+  <% if @only_blocked %>
+    <%= link_to "🚩 solo bloqueados ✕", week_dailies_path(end: @end_date.iso8601), style: "font-family:'IBM Plex Mono';font-size:12px;color:#f5424b" %>
+  <% else %>
+    <%= link_to "🚩 solo bloqueados", week_dailies_path(end: @end_date.iso8601, blocked: 1), style: "font-family:'IBM Plex Mono';font-size:12px" %>
+  <% end %>
+  <span style="color:var(--muted)">·</span>
   <%= link_to "vista por día", dailies_path, style: "font-family:'IBM Plex Mono';font-size:12px" %>
   <span style="color:var(--muted)">·</span>
-  <%= link_to "‹ 5 días antes", week_dailies_path(end: (@start_date - 1).iso8601), style: "font-family:'IBM Plex Mono';font-size:12px" %>
-  <%= link_to "5 días después ›", week_dailies_path(end: (@end_date + 5).iso8601), style: "font-family:'IBM Plex Mono';font-size:12px" %>
+  <%= link_to "‹ 5 días antes", week_dailies_path(end: (@start_date - 1).iso8601, blocked: (@only_blocked ? 1 : nil)), style: "font-family:'IBM Plex Mono';font-size:12px" %>
+  <%= link_to "5 días después ›", week_dailies_path(end: (@end_date + 5).iso8601, blocked: (@only_blocked ? 1 : nil)), style: "font-family:'IBM Plex Mono';font-size:12px" %>
 </div>
+
+<% if @only_blocked && @dailies_by_date.empty? %>
+  <p style="color:var(--muted)">Sin bloqueos en estos 5 días. 🎉</p>
+<% end %>
 
 <% (@start_date..@end_date).to_a.reverse.each do |date| %>
   <% dailies = @dailies_by_date[date] || [] %>
+  <% next if @only_blocked && dailies.empty? %>
   <div style="margin-bottom:26px">
     <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px">
       <div style="font-family:'IBM Plex Mono';font-size:13px;color:var(--txt);font-weight:600"><%= date.iso8601 %></div>

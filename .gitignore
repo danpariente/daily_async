@@ -46,3 +46,4 @@
 /.kamal/.ghcr_token
 /.kamal/.dashboard_password
 /.kamal/.elevenlabs_key
+/.kamal/.openai_key
