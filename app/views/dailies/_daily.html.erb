@@ -13,8 +13,13 @@
   <% if daily.analysis_done? && daily.segments? %>
     <div style="margin-bottom:14px">
       <% [["Ayer", "ayer"], ["Hoy", "hoy"], ["Bloqueos", "bloqueos"]].each do |label, key| %>
+        <% seek = daily.seek_for(key) %>
         <div style="margin-bottom:9px">
-          <div style="font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px"><%= label %></div>
+          <% if seek %>
+            <div data-seek="<%= seek[0] %>" data-t="<%= seek[1] %>" title="Saltar el video a esta pregunta" style="display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">▶ <%= label %> <span style="opacity:.6;text-transform:none"><%= "%d:%02d" % [seek[1] / 60, seek[1] % 60] %></span></div>
+          <% else %>
+            <div style="font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px"><%= label %></div>
+          <% end %>
           <% if daily.segment(key).present? %>
             <div style="font-size:14px;color:var(--txt);line-height:1.55"><%= daily.segment(key) %></div>
           <% else %>
@@ -38,15 +43,15 @@
         <%= clip.kind %> · <%= "%d:%02d" % [clip.duration_seconds/60, clip.duration_seconds%60] %>
       </div>
       <% if clip.file.attached? %>
-        <video controls playsinline preload="metadata"
+        <video id="clip-video-<%= clip.id %>" controls playsinline preload="metadata"
                src="<%= rails_blob_path(clip.file, disposition: 'inline') %>"
                style="width:100%;max-width:520px;border-radius:8px;background:#000"></video>
       <% end %>
       <% if clip.marks.present? %>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
           <% clip.marks.each do |m| %>
-            <span style="font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:3px 8px">
-              <%= "%d:%02d" % [m['t'].to_i/60, m['t'].to_i%60] %> · <%= m['label'] %>
+            <span data-seek="<%= clip.id %>" data-t="<%= m['t'].to_i %>" title="Saltar el video aquí" style="font-family:'IBM Plex Mono';font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:3px 8px">
+              ▶ <%= "%d:%02d" % [m['t'].to_i/60, m['t'].to_i%60] %> · <%= m['label'] %>
             </span>
           <% end %>
         </div>

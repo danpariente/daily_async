@@ -14,7 +14,23 @@
       .wrap{max-width:920px;margin:0 auto;padding:22px 18px 60px}
       h1{font-family:'IBM Plex Mono',monospace;font-size:18px;letter-spacing:.04em}
       a{color:var(--accent)}
+      [data-seek]{cursor:pointer;transition:.12s}
+      [data-seek]:hover{color:var(--accent);border-color:var(--accent)}
     </style>
   </head>
-  <body><div class="wrap"><%= yield %></div></body>
+  <body>
+    <div class="wrap"><%= yield %></div>
+    <script>
+      // Salta el reproductor del clip al momento de la pregunta (marks del grabador).
+      document.addEventListener("click", function(e){
+        var el = e.target.closest("[data-seek]");
+        if(!el) return;
+        var v = document.getElementById("clip-video-" + el.dataset.seek);
+        if(!v) return;
+        v.currentTime = parseFloat(el.dataset.t) || 0;
+        v.scrollIntoView({behavior:"smooth", block:"center"});
+        v.play().catch(function(){});
+      });
+    </script>
+  </body>
 </html>
